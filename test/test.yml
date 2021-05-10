@@ -1,0 +1,3 @@
+configuration:
+  HELLO: WORLD
+  HELLO2: WORLD 2
