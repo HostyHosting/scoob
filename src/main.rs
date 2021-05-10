@@ -1,5 +1,6 @@
-use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+mod config;
+
+use crate::config::*;
 use std::path::PathBuf;
 use std::process::Command;
 use structopt::StructOpt;
@@ -43,32 +44,20 @@ enum Opt {
     Start(Start),
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-struct Config {
-    configuration: HashMap<String, String>,
-}
-
 fn modify(cmd: &Modify) {
-    let file = &cmd.file;
-    let content = std::fs::read_to_string(file).expect("Could not read secrets file.");
-    let deserialized_map: Config = serde_yaml::from_str(&content).expect("Do not break pls.");
-
-    println!("{:?}", deserialized_map);
+    let config = get_config(&cmd.file);
+    println!("{:?}", config);
 }
 
 fn start(cmd: &Start) {
-    let file = &cmd.file;
-    let content = std::fs::read_to_string(file).expect("Could not read secrets file.");
-    let config: Config = serde_yaml::from_str(&content).expect("Do not break pls.");
-
-    println!("{:?}", config);
+    let config = get_config(&cmd.file);
 
     let mut sub_command = match &cmd.sub_command {
         SubCommand::Other(values) => values.iter(),
     };
 
     if sub_command.len() < 1 {
-        // TODO: Throw
+        // TODO: Error
         println!("Uh oh...")
     }
 
