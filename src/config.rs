@@ -13,34 +13,43 @@ pub struct EncryptionKey {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct Config {
+pub struct ConfigFile {
 	pub configuration: HashMap<String, String>,
 	pub keys: HashMap<String, EncryptionKey>,
 }
 
-pub fn get_config(path: &PathBuf) -> Config {
-	let content = std::fs::read_to_string(path).expect("Could not read secrets file.");
-	let config: Config = serde_yaml::from_str(&content).expect("Do not break pls.");
-	println!("{:?}", config);
-	config
-}
+pub struct Config {}
 
-pub fn default_config() -> Config {
-	let (public_key, secret_key) = gen_keypair();
+impl Config {
+	pub fn get_config(path: &PathBuf) -> ConfigFile {
+		let content = std::fs::read_to_string(path).expect("Could not read secrets file.");
+		let config: ConfigFile = serde_yaml::from_str(&content).expect("Do not break pls.");
+		println!("{:?}", config);
+		config
+	}
 
-	let default_config: HashMap<String, String> = HashMap::new();
-	let mut default_keys = HashMap::new();
+	pub fn default_config() -> ConfigFile {
+		let (public_key, secret_key) = gen_keypair();
 
-	default_keys.insert(
-		"*".to_string(),
-		EncryptionKey {
-			public_key: BASE64.encode((public_key).0.as_ref()),
-			secret_key: BASE64.encode((secret_key).0.as_ref()),
-		},
-	);
+		let mut default_config: HashMap<String, String> = HashMap::new();
+		let mut default_keys = HashMap::new();
 
-	Config {
-		configuration: default_config,
-		keys: default_keys,
+		default_config.insert(
+			"EXAMPLE_KEY".to_string(),
+			"some value that should be encrypted".to_string(),
+		);
+
+		default_keys.insert(
+			"*".to_string(),
+			EncryptionKey {
+				public_key: BASE64.encode((public_key).0.as_ref()),
+				secret_key: BASE64.encode((secret_key).0.as_ref()),
+			},
+		);
+
+		ConfigFile {
+			configuration: default_config,
+			keys: default_keys,
+		}
 	}
 }
