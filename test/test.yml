@@ -1,10 +1,6 @@
 ---
 configuration: {}
 keys:
-  - provider: env
-    for:
-      - "*"
-      - "test"
-    config:
-      publicKey: kbAMX1IjIeUL7KIrVXmSyQYLLdctcDfHaKNUyw3pB28=
-      secretKey: qAhVtQBKyfUd+6Tvuh7wev0S24MnHK/ilclnEcE+AA0=
+  "*":
+    publicKey: 6NHGxDfse2H27hDFm+kW6YiPI3o8iW7W24gzqWqVdC0=
+    secretKey: piDaZMO9aH7Cb5uGa60qW50+ACzeirD0fs5p3v1vCxo=

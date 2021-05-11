@@ -6,16 +6,16 @@ use std::path::PathBuf;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct EncryptionKey {
-	pub provider: String,
-	#[serde(rename = "for")]
-	pub for_keys: Vec<String>,
-	pub config: HashMap<String, String>,
+	#[serde(rename = "publicKey")]
+	pub public_key: String,
+	#[serde(rename = "secretKey")]
+	pub secret_key: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Config {
 	pub configuration: HashMap<String, String>,
-	pub keys: Vec<EncryptionKey>,
+	pub keys: HashMap<String, EncryptionKey>,
 }
 
 pub fn get_config(path: &PathBuf) -> Config {
@@ -26,25 +26,21 @@ pub fn get_config(path: &PathBuf) -> Config {
 }
 
 pub fn default_config() -> Config {
-	let mut provider_config: HashMap<String, String> = HashMap::new();
-
 	let (public_key, secret_key) = gen_keypair();
 
-	provider_config.insert(
-		"publicKey".to_string(),
-		BASE64.encode((public_key).0.as_ref()),
-	);
-	provider_config.insert(
-		"secretKey".to_string(),
-		BASE64.encode((secret_key).0.as_ref()),
+	let default_config: HashMap<String, String> = HashMap::new();
+	let mut default_keys = HashMap::new();
+
+	default_keys.insert(
+		"*".to_string(),
+		EncryptionKey {
+			public_key: BASE64.encode((public_key).0.as_ref()),
+			secret_key: BASE64.encode((secret_key).0.as_ref()),
+		},
 	);
 
 	Config {
-		configuration: HashMap::new(),
-		keys: vec![EncryptionKey {
-			provider: "env".to_string(),
-			for_keys: vec!['*'.to_string()],
-			config: provider_config,
-		}],
+		configuration: default_config,
+		keys: default_keys,
 	}
 }
