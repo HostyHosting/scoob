@@ -1,3 +1,10 @@
-configuration:
-  HELLO: WORLD
-  HELLO2: WORLD 2
+---
+configuration: {}
+keys:
+  - provider: env
+    for:
+      - "*"
+      - "test"
+    config:
+      publicKey: kbAMX1IjIeUL7KIrVXmSyQYLLdctcDfHaKNUyw3pB28=
+      secretKey: qAhVtQBKyfUd+6Tvuh7wev0S24MnHK/ilclnEcE+AA0=

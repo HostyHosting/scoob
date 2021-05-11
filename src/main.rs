@@ -1,6 +1,8 @@
 mod config;
+mod encryption;
 
 use crate::config::*;
+use crate::encryption::*;
 use std::path::PathBuf;
 use std::process::Command;
 use structopt::StructOpt;
@@ -45,8 +47,17 @@ enum Opt {
 }
 
 fn modify(cmd: &Modify) {
-    let config = get_config(&cmd.file);
-    println!("{:?}", config);
+    if cmd.create && cmd.edit {
+        // TODO: Throw if both are provided
+    }
+
+    if cmd.create {
+        std::fs::write(
+            &cmd.file,
+            serde_yaml::to_string(&default_config()).expect("Failed to create default config"),
+        )
+        .unwrap();
+    }
 }
 
 fn start(cmd: &Start) {
@@ -64,6 +75,11 @@ fn start(cmd: &Start) {
     let first_command = sub_command.next().unwrap();
 
     let mut command = Command::new(first_command);
+
+    println!(
+        "{:?}",
+        encrypt(&config, &"test".to_string(), &"test".to_string())
+    );
 
     for key in config.configuration.keys() {
         command.env(
@@ -83,6 +99,8 @@ fn start(cmd: &Start) {
 }
 
 fn main() {
+    sodiumoxide::init().unwrap();
+
     let cli = Opt::from_args();
 
     match &cli {
