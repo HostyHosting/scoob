@@ -47,8 +47,6 @@ impl Encryption {
 		let public_key = self.get_pub_key(key);
 		let secret_key = self.get_sec_key(key);
 
-		println!("{}, {}, {:?}", key, value, public_key);
-
 		let decrypted = sealedbox::open(
 			&BASE64.decode(value.as_bytes()).unwrap(),
 			&public_key,
