@@ -2,6 +2,7 @@ use crate::ConfigFile;
 use data_encoding::BASE64;
 use sodiumoxide::crypto::box_::*;
 use sodiumoxide::crypto::sealedbox;
+use std::collections::HashMap;
 use std::str;
 
 pub struct Encryption {
@@ -9,6 +10,28 @@ pub struct Encryption {
 }
 
 impl Encryption {
+	pub fn encrypt_configuration(&self, new_config: ConfigFile) -> ConfigFile {
+		let mut encrypted_configuration: HashMap<String, String> = HashMap::new();
+
+		for (key, value) in new_config.configuration.iter() {
+			match value.as_str() {
+				// Encrypted value that has not changed. We just use the previous value:
+				"<encrypted>" => encrypted_configuration.insert(
+					key.to_string(),
+					// TODO: Handle case where original configuration doesn't have the key.
+					self.config.configuration.get(key).unwrap().to_string(),
+				),
+				// New value:
+				_ => encrypted_configuration.insert(key.to_string(), self.encrypt(key, value)),
+			};
+		}
+
+		ConfigFile {
+			configuration: encrypted_configuration,
+			keys: new_config.keys,
+		}
+	}
+
 	pub fn encrypt(&self, key: &String, value: &String) -> String {
 		let public_key = self.get_pub_key(key);
 
@@ -20,8 +43,15 @@ impl Encryption {
 		let public_key = self.get_pub_key(key);
 		let secret_key = self.get_sec_key(key);
 
-		str::from_utf8(&sealedbox::open(value.as_bytes(), &public_key, &secret_key).unwrap())
-			.unwrap()
+		let decrypted = sealedbox::open(
+			&BASE64.decode(value.as_bytes()).unwrap(),
+			&public_key,
+			&secret_key,
+		)
+		.unwrap();
+
+		str::from_utf8(&decrypted)
+			.expect("Invalid secret found")
 			.to_string()
 	}
 

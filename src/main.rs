@@ -1,11 +1,13 @@
 mod config;
 mod encryption;
-mod start;
 mod modify;
+mod start;
 
 use crate::config::*;
+use crate::encryption::*;
 use crate::modify::*;
 use crate::start::*;
+use colored::Colorize;
 use std::path::PathBuf;
 use structopt::StructOpt;
 
@@ -18,7 +20,7 @@ pub enum SubCommand {
 #[derive(Debug, StructOpt)]
 pub struct Modify {
     /// Edit the provided configuration file
-    #[structopt(short, long, about = "Test")]
+    #[structopt(short, long)]
     edit: bool,
     /// Create the configuration file
     #[structopt(short, long)]
@@ -39,7 +41,7 @@ pub struct Start {
 }
 
 #[derive(Debug, StructOpt)]
-#[structopt(name = "scoob", about = "TODO")]
+#[structopt(name = "scoob", about = "A secrets management tool.")]
 enum Opt {
     /// Open a scoob configuration file for modification
     Modify(Modify),
@@ -53,9 +55,23 @@ fn main() {
 
     let cli = Opt::from_args();
 
-    // TODO: Take result and do shit with it.
-    match &cli {
+    let result = match &cli {
         Opt::Modify(c) => modify(&c),
-        Opt::Start(c) => start(c),
-    }.unwrap();
+        Opt::Start(c) => {
+            let start_result = start(c);
+
+            match start_result {
+                Ok(status) => std::process::exit(match status.code() {
+                    Some(code) => code,
+                    None => 0,
+                }),
+                Err(err) => Err(err),
+            }
+        }
+    };
+
+    match result {
+        Ok(_) => (),
+        Err(message) => println!("{}", String::from(message).red().bold()),
+    };
 }

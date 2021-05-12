@@ -4,7 +4,7 @@ use sodiumoxide::crypto::box_::gen_keypair;
 use std::collections::HashMap;
 use std::path::PathBuf;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct EncryptionKey {
 	#[serde(rename = "publicKey")]
 	pub public_key: String,
@@ -12,20 +12,46 @@ pub struct EncryptionKey {
 	pub secret_key: String,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct ConfigFile {
 	pub configuration: HashMap<String, String>,
 	pub keys: HashMap<String, EncryptionKey>,
 }
 
+impl ConfigFile {
+	pub fn with_placeholders(&self) -> ConfigFile {
+		let mut placeholder_configuration: HashMap<String, String> = HashMap::new();
+
+		for key in self.configuration.keys() {
+			placeholder_configuration.insert(key.to_string(), "<encrypted>".to_string());
+		}
+
+		ConfigFile {
+			configuration: placeholder_configuration,
+			keys: self.keys.clone(),
+		}
+	}
+}
+
 pub struct Config {}
 
 impl Config {
+	pub fn exists(path: &PathBuf) -> bool {
+		let result = std::fs::read_to_string(path);
+		match result {
+			Ok(_) => true,
+			Err(_) => false,
+		}
+	}
+
 	pub fn get_config(path: &PathBuf) -> ConfigFile {
-		let content = std::fs::read_to_string(path).expect("Could not read secrets file.");
-		let config: ConfigFile = serde_yaml::from_str(&content).expect("Do not break pls.");
-		println!("{:?}", config);
-		config
+		let result = std::fs::read_to_string(path);
+		match result {
+			Ok(content) => {
+				serde_yaml::from_str(&content).expect("Invalid structure of configuration file")
+			}
+			Err(_) => Config::default_config(),
+		}
 	}
 
 	pub fn default_config() -> ConfigFile {

@@ -1,6 +1,6 @@
-use crate::Modify;
+use crate::{Config, ConfigFile, Encryption, Modify};
+use colored::*;
 use std::env;
-use std::process::Command;
 
 enum Mode {
 	CREATE,
@@ -8,25 +8,54 @@ enum Mode {
 }
 
 pub fn modify(cmd: &Modify) -> Result<(), &'static str> {
-	if cmd.create && cmd.edit {
-		return Err("Both '--edit' and '--create' flags cannot be provided");
-	}
-
 	env::var("EDITOR").expect(
 		"You must define your $EDITOR environment variable to modify a Scoob configuration file.",
 	);
 
-	let contents = edit::edit_with_builder("this is a test!", edit::Builder::new().suffix(".yml"));
+	if cmd.create && cmd.edit {
+		return Err("Both '--edit' and '--create' flags cannot be provided");
+	}
 
-	println!("contents: {:?}", contents);
+	if !cmd.create && !cmd.edit {
+		println!("{}", "Neither create nor edit mode was provided. Scoob will attempt to automatically determine the correct mode.".yellow());
+	}
 
-	// if cmd.create {
-	// 	std::fs::write(
-	// 		&cmd.file,
-	// 		serde_yaml::to_string(&Config::default_config()).expect("Failed to create default config"),
-	// 	)
-	// 	.unwrap();
-	// }
+	if cmd.create && Config::exists(&cmd.file) {
+		return Err("The create flag was provided, but the secrets file already exists.");
+	}
+
+	if cmd.edit && !Config::exists(&cmd.file) {
+		return Err("The edit flag was provided, but the secrets file does not exist.");
+	}
+
+	let mode: Mode = if cmd.create || !Config::exists(&cmd.file) {
+		Mode::CREATE
+	} else {
+		Mode::EDIT
+	};
+
+	let original_config = Config::get_config(&cmd.file);
+	let encryption = Encryption {
+		config: original_config.clone(),
+	};
+
+	let temp_file_contents = match mode {
+		Mode::CREATE => Config::default_config(),
+		Mode::EDIT => original_config.with_placeholders(),
+	};
+
+	let contents = edit::edit_with_builder(
+		serde_yaml::to_string(&temp_file_contents).unwrap(),
+		edit::Builder::new().suffix(".yml"),
+	);
+
+	let new_config: ConfigFile = serde_yaml::from_str(&contents.unwrap()).unwrap();
+
+	let encrypted_config = encryption.encrypt_configuration(new_config);
+
+	std::fs::write(&cmd.file, serde_yaml::to_string(&encrypted_config).unwrap()).unwrap();
+
+	println!("Wrote updated scoob configuration file at {:?}", cmd.file);
 
 	Ok(())
 }
