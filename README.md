@@ -22,6 +22,13 @@ scoob modify --edit ./secrets/dev.yml
 
 We recommend creating a separate secrets file for development and production. This way, you can keep your production keys separate.
 
+To use these secrets, you can start a process with Scoob:
+
+```bash
+scoob start ./secrets/dev.yml <command...>
+```
+
+This will decrypt the secrets in the file, and will run the command with the secrets added to the environment variables.
 
 ## Why Rust?
 
