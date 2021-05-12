@@ -8,9 +8,11 @@ enum Mode {
 }
 
 pub fn modify(cmd: &Modify) -> Result<(), &'static str> {
-	env::var("EDITOR").expect(
-		"You must define your $EDITOR environment variable to modify a Scoob configuration file.",
-	);
+	if env::var("EDITOR").is_err() || env::var("EDITOR").unwrap_or("".to_string()).is_empty() {
+		return Err(
+			"You must define your $EDITOR environment variable to modify a Scoob configuration file.",
+		);
+	}
 
 	if cmd.create && cmd.edit {
 		return Err("Both '--edit' and '--create' flags cannot be provided");
@@ -51,7 +53,7 @@ pub fn modify(cmd: &Modify) -> Result<(), &'static str> {
 
 	let new_config: ConfigFile = serde_yaml::from_str(&contents.unwrap()).unwrap();
 
-	let encrypted_config = encryption.encrypt_configuration(new_config);
+	let encrypted_config = encryption.encrypt_configuration(new_config)?;
 
 	std::fs::write(&cmd.file, serde_yaml::to_string(&encrypted_config).unwrap()).unwrap();
 

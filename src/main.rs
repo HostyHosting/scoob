@@ -51,7 +51,7 @@ enum Opt {
 }
 
 fn main() {
-    sodiumoxide::init().unwrap();
+    sodiumoxide::init().expect("Was not able to initialize Libsodium.");
 
     let cli = Opt::from_args();
 

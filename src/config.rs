@@ -48,7 +48,8 @@ impl Config {
 		let result = std::fs::read_to_string(path);
 		match result {
 			Ok(content) => {
-				serde_yaml::from_str(&content).expect("Invalid structure of configuration file")
+				// TODO: Invalid structure of configuration file
+				serde_yaml::from_str(&content).unwrap()
 			}
 			Err(_) => Config::default_config(),
 		}

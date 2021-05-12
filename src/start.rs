@@ -13,23 +13,30 @@ pub fn start(cmd: &Start) -> Result<ExitStatus, &'static str> {
 		SubCommand::Other(values) => values.iter(),
 	};
 
-	let first_command = sub_command.next().unwrap();
+	let first_command = sub_command.next();
 
-	let mut command = Command::new(first_command);
+	if first_command.is_none() {
+		return Err("No command was provided.");
+	}
+
+	let mut command = Command::new(first_command.expect("Missing command."));
 
 	let encryption = Encryption {
 		config: config.clone(),
 	};
 
 	for (key, value) in config.configuration.iter() {
-		command.env(key, encryption.decrypt(key, value));
+		command.env(key, encryption.decrypt(key, value)?);
 	}
 
 	for arg in sub_command {
 		command.arg(arg);
 	}
 
-	let status = command.status().expect("Failed to start");
+	let status = match command.status() {
+		Ok(val) => val,
+		Err(_) => return Err("Failed to start command, please verify that it exists."),
+	};
 
 	Ok(status)
 }
