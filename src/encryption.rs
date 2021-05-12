@@ -1,9 +1,22 @@
 use crate::ConfigFile;
+use crate::EncryptionKey;
 use data_encoding::BASE64;
 use sodiumoxide::crypto::box_::*;
 use sodiumoxide::crypto::sealedbox;
 use std::collections::HashMap;
 use std::str;
+use std::env;
+
+fn resolve_env_key(key: &String) -> String {
+	return if key.starts_with('$') {
+		// Remove the $ from the environment variable:
+		let mut env_key = key.chars();
+		env_key.next();
+		env::var(env_key.as_str()).unwrap_or("".to_string())
+	} else {
+		key.clone()
+	};
+}
 
 pub struct Encryption {
 	pub config: ConfigFile,
@@ -59,13 +72,24 @@ impl Encryption {
 			.to_string()
 	}
 
-	fn get_sec_key(&self, new_key: &String) -> SecretKey {
-		let sec_key = &self
+	fn resolve_keys(&self, key: &String) -> EncryptionKey {
+		let keys = self
 			.config
 			.keys
-			.get(new_key)
-			.unwrap_or(self.config.keys.get("*").unwrap())
-			.secret_key;
+			.get(key)
+			.unwrap_or_else(|| self.config.keys.get("*").unwrap());
+
+		let public_key = resolve_env_key(&keys.public_key);
+		let secret_key = resolve_env_key(&keys.secret_key);
+
+		EncryptionKey {
+			public_key,
+			secret_key,
+		}
+	}
+
+	fn get_sec_key(&self, key: &String) -> SecretKey {
+		let sec_key = self.resolve_keys(key).secret_key;
 
 		// sodiumoxide needs fixed-length arrays, not slices
 		let seckey_decoded = BASE64.decode(sec_key.as_bytes()).unwrap();
@@ -79,13 +103,8 @@ impl Encryption {
 		SecretKey(seckey_bytes)
 	}
 
-	fn get_pub_key(&self, new_key: &String) -> PublicKey {
-		let pub_key = &self
-			.config
-			.keys
-			.get(new_key)
-			.unwrap_or(self.config.keys.get("*").unwrap())
-			.public_key;
+	fn get_pub_key(&self, key: &String) -> PublicKey {
+		let pub_key = self.resolve_keys(key).public_key;
 
 		// sodiumoxide needs fixed-length arrays, not slices
 		let pubkey_decoded = BASE64.decode(pub_key.as_bytes()).unwrap();
