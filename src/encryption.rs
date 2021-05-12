@@ -13,6 +13,10 @@ impl Encryption {
 	pub fn encrypt_configuration(&self, new_config: ConfigFile) -> ConfigFile {
 		let mut encrypted_configuration: HashMap<String, String> = HashMap::new();
 
+		let new_encrypter = Encryption {
+			config: new_config.clone(),
+		};
+
 		for (key, value) in new_config.configuration.iter() {
 			match value.as_str() {
 				// Encrypted value that has not changed. We just use the previous value:
@@ -22,7 +26,7 @@ impl Encryption {
 					self.config.configuration.get(key).unwrap().to_string(),
 				),
 				// New value:
-				_ => encrypted_configuration.insert(key.to_string(), self.encrypt(key, value)),
+				_ => encrypted_configuration.insert(key.to_string(), new_encrypter.encrypt(key, value)),
 			};
 		}
 
@@ -42,6 +46,8 @@ impl Encryption {
 	pub fn decrypt(&self, key: &String, value: &String) -> String {
 		let public_key = self.get_pub_key(key);
 		let secret_key = self.get_sec_key(key);
+
+		println!("{}, {}, {:?}", key, value, public_key);
 
 		let decrypted = sealedbox::open(
 			&BASE64.decode(value.as_bytes()).unwrap(),
