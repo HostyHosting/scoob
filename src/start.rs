@@ -1,8 +1,8 @@
 use crate::{Config, Encryption, Start, SubCommand};
+use std::os::unix::process::CommandExt;
 use std::process::Command;
-use std::process::ExitStatus;
 
-pub fn start(cmd: &Start) -> Result<ExitStatus, &'static str> {
+pub fn start(cmd: &Start) -> Result<i32, &'static str> {
 	if !Config::exists(&cmd.file) {
 		return Err("The provided configuration file does not exist");
 	}
@@ -33,10 +33,15 @@ pub fn start(cmd: &Start) -> Result<ExitStatus, &'static str> {
 		command.arg(arg);
 	}
 
-	let status = match command.status() {
-		Ok(val) => val,
-		Err(_) => return Err("Failed to start command, please verify that it exists."),
-	};
+	if cfg!(unix) {
+		command.exec();
+		Ok(0)
+	} else {
+		let status = match command.status() {
+			Ok(val) => val,
+			Err(_) => return Err("Failed to start command, please verify that it exists."),
+		};
 
-	Ok(status)
+		Ok(status.code().unwrap_or(0))
+	}
 }

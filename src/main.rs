@@ -61,10 +61,7 @@ fn main() {
             let start_result = start(c);
 
             match start_result {
-                Ok(status) => std::process::exit(match status.code() {
-                    Some(code) => code,
-                    None => 0,
-                }),
+                Ok(status) => std::process::exit(status),
                 Err(err) => Err(err),
             }
         }
