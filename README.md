@@ -9,6 +9,7 @@ Secrets are encrypted using [Sodium sealed boxes](https://libsodium.gitbook.io/d
 Install scoob somehow.
 
 First, you'll want to create a secrets file:
+
 ```bash
 scoob modify --create ./secrets/dev.yml
 ```
@@ -16,6 +17,7 @@ scoob modify --create ./secrets/dev.yml
 This will open your editor with an example Scoob configuration file. A pair of public and secret keys will auto-generated and provided in the file. Make sure you don't commit these into your repository, and instead replace them with values provided dynamically via environment variables. When you close your editor, all of the values under `configuration:` will be encrypted, and the file will be written to disk.
 
 At a later point, you can add additional secrets by running the following command:
+
 ```bash
 scoob modify --edit ./secrets/dev.yml
 ```
@@ -37,12 +39,12 @@ Scoob is designed to ship alongside your production code, as the CLI is used to 
 
 - Must work on most development / deployment platforms.
 - Must have a very small runtime memory overhead.
-    - `scoob-node` currently has ~55mb of memory overhead.
-    - `scoob-rs` currently has ~380kb of memory overhead.
+  - `scoob-node` currently has ~55mb of memory overhead.
+  - `scoob-rs` currently has ~380kb of memory overhead to start, and has **0** runtime overhead on Unix systems.
 - Must start quickly.
-    - `scoob-node` currently has ~500ms of start time overhead.
-    - `scoob-rs` currently has ~0ms of start time overhead.
+  - `scoob-node` currently has ~500ms of start time overhead.
+  - `scoob-rs` currently has ~0ms of start time overhead.
 - The binary should be small enough to build into a Docker image.
-    - `scoob-node` is currently ~60mb.
-    - `scoob-rs` is currently ~1mb.
+  - `scoob-node` is currently ~60mb.
+  - `scoob-rs` is currently ~1mb.
 - Must work with projects that are not written in Node.js and do not have `npm` or `node` installed.
