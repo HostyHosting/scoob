@@ -34,8 +34,11 @@ jobs:
           use-cross: true
           command: build
           args: --locked --release --target=${{ matrix.target }}
-      - name: Upload checksums as artifact
-        uses: actions/upload-artifact@v2
+      - name: Move release binary
+        run: cp target/${{ matrix.target }}/release/scoob-rs scoob-${{ matrix.target }}
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: scoob-${{ matrix.target }}
-          path: target/${{ matrix.target }}/release/scoob-rs
+          files: scoob-${{ matrix.target }}

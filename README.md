@@ -45,6 +45,6 @@ Scoob is designed to ship alongside your production code, as the CLI is used to 
   - `scoob-node` currently has ~500ms of start time overhead.
   - `scoob-rs` currently has ~0ms of start time overhead.
 - The binary should be small enough to build into a Docker image.
-  - `scoob-node` is currently ~60mb.
-  - `scoob-rs` is currently ~1mb.
+  - `scoob-node` is currently ~60mb (including node runtime).
+  - `scoob-rs` is currently ~1-2mb.
 - Must work with projects that are not written in Node.js and do not have `npm` or `node` installed.
