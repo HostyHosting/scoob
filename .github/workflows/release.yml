@@ -23,6 +23,7 @@ jobs:
           args: --locked --release --target=x86_64-apple-darwin
       - uses: actions-rs/cargo@v1
         with:
+          use-cross: true
           command: build
           args: --locked --release --target=aarch64-apple-darwin
 
