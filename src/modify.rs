@@ -36,13 +36,13 @@ pub fn modify(cmd: &Modify) -> Result<(), &'static str> {
 		Mode::Edit
 	};
 
-	let original_config = Config::get_config(&cmd.file);
+	let original_config = Config::get(&cmd.file);
 	let encryption = Encryption {
 		config: &original_config,
 	};
 
 	let temp_file_contents = match mode {
-		Mode::Create => Config::default_config(),
+		Mode::Create => Config::default(),
 		Mode::Edit => original_config.with_placeholders(),
 	};
 

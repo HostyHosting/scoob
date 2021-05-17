@@ -8,7 +8,7 @@ pub fn start(cmd: &Start) -> Result<i32, &'static str> {
 		return Err("The provided configuration file does not exist");
 	}
 
-	let config = Config::get_config(&cmd.file);
+	let config = Config::get(&cmd.file);
 
 	let mut sub_command = match &cmd.sub_command {
 		SubCommand::Other(values) => values.iter(),

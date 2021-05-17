@@ -41,18 +41,18 @@ impl Config {
 		result.is_ok()
 	}
 
-	pub fn get_config(path: &Path) -> ConfigFile {
+	pub fn get(path: &Path) -> ConfigFile {
 		let result = std::fs::read_to_string(path);
 		match result {
 			Ok(content) => {
 				// TODO: Invalid structure of configuration file
 				serde_yaml::from_str(&content).unwrap()
 			}
-			Err(_) => Config::default_config(),
+			Err(_) => Config::default(),
 		}
 	}
 
-	pub fn default_config() -> ConfigFile {
+	pub fn default() -> ConfigFile {
 		let (public_key, secret_key) = gen_keypair();
 
 		let mut default_config: HashMap<String, String> = HashMap::new();
@@ -75,5 +75,69 @@ impl Config {
 			configuration: default_config,
 			keys: default_keys,
 		}
+	}
+}
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use std::env;
+
+	#[test]
+	fn test_default_config() {
+		let config = Config::default();
+		let default_keys = config
+			.keys
+			.get("*")
+			.expect("Missing default encryption keys");
+
+		config
+			.configuration
+			.get("EXAMPLE_KEY")
+			.expect("Default configuration should include example key.");
+
+		assert!(default_keys.public_key.chars().count() > 0);
+		assert!(default_keys.secret_key.chars().count() > 0);
+	}
+
+	#[test]
+	fn test_exists() -> std::io::Result<()> {
+		let mut path = env::current_dir()?;
+		path.push("test");
+		path.push("secrets.yml");
+		assert_eq!(Config::exists(&path), true);
+		path.pop();
+		path.push("does-not-exist.yml");
+		assert_eq!(Config::exists(&path), false);
+		Ok(())
+	}
+
+	#[test]
+	fn test_read_config() -> std::io::Result<()> {
+		let mut path = env::current_dir()?;
+		path.push("test");
+		path.push("secrets.yml");
+		let config = Config::get(&path);
+		config
+			.configuration
+			.get("TEST_KEY")
+			.expect("Should include test key");
+		Ok(())
+	}
+
+	#[test]
+	fn test_config_placeholders() {
+		let mut config = Config::default();
+		config
+			.configuration
+			.insert("TEST".to_string(), "A test value".to_string());
+		let placeholder_config = config.with_placeholders();
+		assert_eq!(
+			placeholder_config
+				.configuration
+				.get("TEST")
+				.expect("Did not find test key"),
+			"<encrypted>"
+		);
 	}
 }
