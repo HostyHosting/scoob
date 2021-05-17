@@ -1,6 +1,6 @@
 use crate::{Config, Encryption, Start, SubCommand};
-use std::os::unix::process::CommandExt;
 use std::process::Command;
+#[cfg(unix)] use std::os::unix::process::CommandExt;
 
 pub fn start(cmd: &Start) -> Result<i32, &'static str> {
 	if !Config::exists(&cmd.file) {
