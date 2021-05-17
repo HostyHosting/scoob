@@ -38,7 +38,7 @@ pub fn modify(cmd: &Modify) -> Result<(), &'static str> {
 
 	let original_config = Config::get_config(&cmd.file);
 	let encryption = Encryption {
-		config: original_config.clone(),
+		config: &original_config,
 	};
 
 	let temp_file_contents = match mode {

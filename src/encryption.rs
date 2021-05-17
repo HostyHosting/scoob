@@ -18,16 +18,16 @@ fn resolve_env_key(key: &str) -> String {
 	};
 }
 
-pub struct Encryption {
-	pub config: ConfigFile,
+pub struct Encryption<'a> {
+	pub config: &'a ConfigFile,
 }
 
-impl Encryption {
-	pub fn encrypt_configuration(&self, new_config: ConfigFile) -> Result<ConfigFile, &'static str> {
+impl Encryption<'_> {
+	pub fn encrypt_configuration(&self, new_config: &ConfigFile) -> Result<ConfigFile, &'static str> {
 		let mut encrypted_configuration: HashMap<String, String> = HashMap::new();
 
 		let new_encrypter = Encryption {
-			config: new_config.clone(),
+			config: new_config,
 		};
 
 		for (key, value) in new_config.configuration.iter() {
