@@ -1,0 +1,59 @@
+name: Release
+
+# TODO: Change before merging
+on: [push]
+# on:
+#   push:
+#     branches:
+#       - main
+
+jobs:
+  release_mac:
+    name: Build and Release MacOS
+    runs-on: macOS-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --locked --release --target=x86_64-apple-darwin
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --locked --release --target=aarch64-apple-darwin
+
+  release_linux:
+    name: Build and Release Linux
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --locked --release --target=x86_64-unknown-linux-gnu
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --locked --release --target=aarch64-unknown-linux-gnu
+
+  release_windows:
+    name: Build and Release Windows
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --locked --release --target=x86_64-pc-windows-msvc
