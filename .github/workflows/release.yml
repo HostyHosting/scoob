@@ -1,14 +1,11 @@
 name: Release
 
-# TODO: Change before merging
-on: [push]
-# on:
-#   push:
-#     branches:
-#       - main
+on:
+  push:
+    tags:
+      - "v*"
 
 jobs:
-
   release:
     name: Build and Release
     runs-on: ${{ matrix.os }}
@@ -37,3 +34,8 @@ jobs:
           use-cross: true
           command: build
           args: --locked --release --target=${{ matrix.target }}
+      - name: Upload checksums as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: scoob-${{ matrix.target }}
+          path: target/release/scoob-rs
