@@ -3,12 +3,12 @@ use colored::*;
 use std::env;
 
 enum Mode {
-	CREATE,
-	EDIT,
+	Create,
+	Edit,
 }
 
 pub fn modify(cmd: &Modify) -> Result<(), &'static str> {
-	if env::var("EDITOR").is_err() || env::var("EDITOR").unwrap_or("".to_string()).is_empty() {
+	if env::var("EDITOR").is_err() || env::var("EDITOR").unwrap_or_else(|_| "".to_string()).is_empty() {
 		return Err(
 			"You must define your $EDITOR environment variable to modify a Scoob configuration file.",
 		);
@@ -31,9 +31,9 @@ pub fn modify(cmd: &Modify) -> Result<(), &'static str> {
 	}
 
 	let mode: Mode = if cmd.create || !Config::exists(&cmd.file) {
-		Mode::CREATE
+		Mode::Create
 	} else {
-		Mode::EDIT
+		Mode::Edit
 	};
 
 	let original_config = Config::get_config(&cmd.file);
@@ -42,8 +42,8 @@ pub fn modify(cmd: &Modify) -> Result<(), &'static str> {
 	};
 
 	let temp_file_contents = match mode {
-		Mode::CREATE => Config::default_config(),
-		Mode::EDIT => original_config.with_placeholders(),
+		Mode::Create => Config::default_config(),
+		Mode::Edit => original_config.with_placeholders(),
 	};
 
 	let contents = edit::edit_with_builder(

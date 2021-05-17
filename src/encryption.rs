@@ -7,14 +7,14 @@ use std::collections::HashMap;
 use std::env;
 use std::str;
 
-fn resolve_env_key(key: &String) -> String {
+fn resolve_env_key(key: &str) -> String {
 	return if key.starts_with('$') {
 		// Remove the $ from the environment variable:
 		let mut env_key = key.chars();
 		env_key.next();
-		env::var(env_key.as_str()).unwrap_or("".to_string())
+		env::var(env_key.as_str()).unwrap_or_else(|_| "".to_string())
 	} else {
-		key.clone()
+		key.to_string()
 	};
 }
 
@@ -57,14 +57,14 @@ impl Encryption {
 		})
 	}
 
-	pub fn encrypt(&self, key: &String, value: &String) -> Result<String, &'static str> {
+	pub fn encrypt(&self, key: &str, value: &str) -> Result<String, &'static str> {
 		let public_key = self.get_pub_key(key)?;
 
 		let message = sealedbox::seal(value.as_bytes(), &public_key);
 		Ok(BASE64.encode(&message))
 	}
 
-	pub fn decrypt(&self, key: &String, value: &String) -> Result<String, &'static str> {
+	pub fn decrypt(&self, key: &str, value: &str) -> Result<String, &'static str> {
 		let public_key = self.get_pub_key(key)?;
 		let secret_key = self.get_sec_key(key)?;
 
@@ -84,7 +84,7 @@ impl Encryption {
 		})
 	}
 
-	fn resolve_keys(&self, key: &String) -> Result<EncryptionKey, &'static str> {
+	fn resolve_keys(&self, key: &str) -> Result<EncryptionKey, &'static str> {
 		let keys = match self
 			.config
 			.keys
@@ -104,36 +104,32 @@ impl Encryption {
 		})
 	}
 
-	fn get_sec_key(&self, key: &String) -> Result<SecretKey, &'static str> {
+	fn get_sec_key(&self, key: &str) -> Result<SecretKey, &'static str> {
 		let sec_key = self.resolve_keys(key)?.secret_key;
 
 		// sodiumoxide needs fixed-length arrays, not slices
-		let seckey_decoded = BASE64.decode(sec_key.as_bytes()).unwrap_or(vec![]);
+		let seckey_decoded = BASE64.decode(sec_key.as_bytes()).unwrap_or_default();
 		if seckey_decoded.len() != SECRETKEYBYTES {
 			return Err("The secret key did not match the expected format.");
 		}
 
 		let mut seckey_bytes = [0u8; SECRETKEYBYTES];
-		for i in 0..SECRETKEYBYTES {
-			seckey_bytes[i] = seckey_decoded[i];
-		}
+		seckey_bytes[..SECRETKEYBYTES].clone_from_slice(&seckey_decoded[..SECRETKEYBYTES]);
 
 		Ok(SecretKey(seckey_bytes))
 	}
 
-	fn get_pub_key(&self, key: &String) -> Result<PublicKey, &'static str> {
+	fn get_pub_key(&self, key: &str) -> Result<PublicKey, &'static str> {
 		let pub_key = self.resolve_keys(key)?.public_key;
 
 		// sodiumoxide needs fixed-length arrays, not slices
-		let pubkey_decoded = BASE64.decode(pub_key.as_bytes()).unwrap_or(vec![]);
+		let pubkey_decoded = BASE64.decode(pub_key.as_bytes()).unwrap_or_default();
 		if pubkey_decoded.len() != PUBLICKEYBYTES {
 			return Err("The public key did not match the expected format.");
 		}
 
 		let mut pubkey_bytes = [0u8; PUBLICKEYBYTES];
-		for i in 0..PUBLICKEYBYTES {
-			pubkey_bytes[i] = pubkey_decoded[i];
-		}
+		pubkey_bytes[..PUBLICKEYBYTES].clone_from_slice(&pubkey_decoded[..PUBLICKEYBYTES]);
 
 		Ok(PublicKey(pubkey_bytes))
 	}
