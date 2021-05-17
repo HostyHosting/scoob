@@ -38,4 +38,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: scoob-${{ matrix.target }}
-          path: target/release/scoob-rs
+          path: target/${{ matrix.target }}/release/scoob-rs

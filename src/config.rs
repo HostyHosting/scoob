@@ -2,7 +2,7 @@ use data_encoding::BASE64;
 use serde::{Deserialize, Serialize};
 use sodiumoxide::crypto::box_::gen_keypair;
 use std::collections::HashMap;
-use std::path::PathBuf;
+use std::path::Path;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct EncryptionKey {
@@ -12,7 +12,7 @@ pub struct EncryptionKey {
 	pub secret_key: String,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Default, Serialize, Deserialize, Clone, Debug)]
 pub struct ConfigFile {
 	pub configuration: HashMap<String, String>,
 	pub keys: HashMap<String, EncryptionKey>,
@@ -36,15 +36,12 @@ impl ConfigFile {
 pub struct Config {}
 
 impl Config {
-	pub fn exists(path: &PathBuf) -> bool {
+	pub fn exists(path: &Path) -> bool {
 		let result = std::fs::read_to_string(path);
-		match result {
-			Ok(_) => true,
-			Err(_) => false,
-		}
+		result.is_ok()
 	}
 
-	pub fn get_config(path: &PathBuf) -> ConfigFile {
+	pub fn get_config(path: &Path) -> ConfigFile {
 		let result = std::fs::read_to_string(path);
 		match result {
 			Ok(content) => {
