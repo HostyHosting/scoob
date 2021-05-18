@@ -10,6 +10,10 @@ use crate::start::*;
 use colored::Colorize;
 use std::path::PathBuf;
 use structopt::StructOpt;
+use std::alloc::System;
+
+#[global_allocator]
+static A: System = System;
 
 #[derive(Debug, PartialEq, StructOpt)]
 pub enum SubCommand {
