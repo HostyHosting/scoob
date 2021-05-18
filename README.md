@@ -18,10 +18,10 @@ curl -fsSL https://scoob-rs.netlify.app/install.sh | sh
 iwr https://scoob-rs.netlify.app/install.ps1 -useb | iex
 ```
 
-**Build and install from source using [Cargo](https://crates.io/crates/deno):**
+**Build and install from source using [Cargo](https://crates.io/crates/scoob):**
 
 ```bash
-cargo install deno --locked
+cargo install scoob --locked
 ```
 
 ## Getting Started
