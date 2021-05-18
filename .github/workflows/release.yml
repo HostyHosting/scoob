@@ -1,10 +1,9 @@
 name: Release
 
-on: [push]
-# on:
-#   push:
-#     tags:
-#       - "v*"
+on:
+  push:
+    tags:
+      - "v*"
 
 jobs:
   release:
@@ -55,7 +54,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with
-        files: |
+        with:
+          files: |
             target/${{ matrix.target }}/release/scoob-${{ matrix.target }}.zip
-          files: scoob-${{ matrix.target }}
