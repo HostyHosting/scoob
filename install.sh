@@ -27,9 +27,9 @@ fi
 echo ${target}
 
 if [ $# -eq 0 ]; then
-	scoob_uri="https://github.com/hostyhosting/scoob-rs/releases/latest/download/scoob-${target}.zip"
+	scoob_uri="https://github.com/hostyhosting/scoob/releases/latest/download/scoob-${target}.zip"
 else
-	scoob_uri="https://github.com/hostyhosting/scoob-rs/releases/download/${1}/scoob-${target}.zip"
+	scoob_uri="https://github.com/hostyhosting/scoob/releases/download/${1}/scoob-${target}.zip"
 fi
 
 scoob_install="${SCOOB_INSTALL:-$HOME/.scoob}"
