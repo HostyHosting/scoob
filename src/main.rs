@@ -55,7 +55,9 @@ enum Opt {
 }
 
 fn main() {
-    sodiumoxide::init().expect("Was not able to initialize Libsodium.");
+    if sodiumoxide::init().is_err() {
+        return println!("{}", String::from("Was not able to initialize Sodium. Verify your installation of Scoob and try again.").red().bold());
+    }
 
     let cli = Opt::from_args();
 

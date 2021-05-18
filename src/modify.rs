@@ -38,7 +38,7 @@ pub fn modify(cmd: &Modify) -> Result<(), &'static str> {
 
 	let original_config = Config::get_config(&cmd.file);
 	let encryption = Encryption {
-		config: original_config.clone(),
+		config: &original_config,
 	};
 
 	let temp_file_contents = match mode {
@@ -53,7 +53,7 @@ pub fn modify(cmd: &Modify) -> Result<(), &'static str> {
 
 	let new_config: ConfigFile = serde_yaml::from_str(&contents.unwrap()).unwrap();
 
-	let encrypted_config = encryption.encrypt_configuration(new_config)?;
+	let encrypted_config = encryption.encrypt_configuration(&new_config)?;
 
 	std::fs::write(&cmd.file, serde_yaml::to_string(&encrypted_config).unwrap()).unwrap();
 

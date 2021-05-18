@@ -23,7 +23,7 @@ pub fn start(cmd: &Start) -> Result<i32, &'static str> {
 	let mut command = Command::new(first_command.expect("Missing command."));
 
 	let encryption = Encryption {
-		config: config.clone(),
+		config: &config,
 	};
 
 	for (key, value) in config.configuration.iter() {
