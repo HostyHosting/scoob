@@ -10,6 +10,7 @@ jobs:
     name: Build and Release
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         include:
           # TODO: Wait for new Sodiumoxide release https://github.com/sodiumoxide/sodiumoxide/issues/457.

@@ -1,6 +1,6 @@
 # scoob
 
-Scoob is a secrets management tool, designed
+Scoob is a secrets management tool, designed to make managing your development and production secrets easier, and cloud-agnostic.
 
 Secrets are encrypted using [Sodium sealed boxes](https://libsodium.gitbook.io/doc/public-key_cryptography/sealed_boxes).
 
@@ -9,7 +9,7 @@ Secrets are encrypted using [Sodium sealed boxes](https://libsodium.gitbook.io/d
 **Shell (Mac, Linux):**
 
 ```bash
-curl -fsSL https://https://scoob-rs.netlify.app/install.sh | sh
+curl -fsSL https://scoob-rs.netlify.app/install.sh | sh
 ```
 
 **PowerShell (Windows):**
