@@ -6,6 +6,12 @@ Secrets are encrypted using [Sodium sealed boxes](https://libsodium.gitbook.io/d
 
 ## Installing
 
+**[Homebrew](https://brew.sh/):**
+
+```bash
+brew install hostyhosting/tap/scoob
+```
+
 **Shell (Mac, Linux):**
 
 ```bash
