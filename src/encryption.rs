@@ -53,7 +53,7 @@ impl Encryption<'_> {
 
 		Ok(ConfigFile {
 			configuration: encrypted_configuration,
-			keys: new_config.keys,
+			keys: new_config.keys.clone(),
 		})
 	}
 
