@@ -2,7 +2,7 @@
 authors = ["Jordan Gensler <jgensler@netflix.com>"]
 edition = "2018"
 name = "scoob"
-version = "0.1.0"
+version = "0.2.0"
 description = "A secrets management CLI"
 repository = "https://github.com/hostyhosting/scoob/"
 license = "MIT"
