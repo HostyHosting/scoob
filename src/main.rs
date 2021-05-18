@@ -8,9 +8,9 @@ use crate::encryption::*;
 use crate::modify::*;
 use crate::start::*;
 use colored::Colorize;
+use std::alloc::System;
 use std::path::PathBuf;
 use structopt::StructOpt;
-use std::alloc::System;
 
 #[global_allocator]
 static A: System = System;
