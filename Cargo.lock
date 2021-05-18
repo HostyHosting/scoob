@@ -263,7 +263,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "scoob-rs"
+name = "scoob"
 version = "0.1.0"
 dependencies = [
  "colored",

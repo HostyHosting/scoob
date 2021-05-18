@@ -35,11 +35,25 @@ jobs:
           use-cross: true
           command: build
           args: --locked --release --target=${{ matrix.target }}
-      - name: Move release binary
-        run: cp target/${{ matrix.target }}/release/scoob-rs scoob-${{ matrix.target }}
+
+      - name: Create Zip (mac / linux)
+        if: |
+          startsWith(matrix.os, 'ubuntu') ||
+          startsWith(matrix.os, 'macOS')
+        run: |
+          cd target/${{ matrix.target }}/release
+          zip -r scoob-${{ matrix.target }}.zip scoob
+
+      - name: Create Zip (windows)
+        if: |
+          startsWith(matrix.os, 'windows')
+        run: |
+          Compress-Archive -CompressionLevel Optimal -Force -Path target/${{ matrix.target }}/release/scoob.exe -DestinationPath target/${{ matrix.target }}/release/scoob-${{ matrix.target }}.zip
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: scoob-${{ matrix.target }}
+          files: |
+            target/${{ matrix.target }}/release/scoob-${{ matrix.target }}.zip
