@@ -1,4 +1,4 @@
-use crate::{EncryptionKey, Config};
+use crate::{Config, EncryptionKey};
 use data_encoding::BASE64;
 use sodiumoxide::crypto::box_::*;
 use sodiumoxide::crypto::sealedbox;
@@ -22,10 +22,7 @@ pub struct Encryption<'a> {
 }
 
 impl Encryption<'_> {
-    pub fn encrypt_configuration(
-        &self,
-        new_config: &Config,
-    ) -> Result<Config, &'static str> {
+    pub fn encrypt_configuration(&self, new_config: &Config) -> Result<Config, &'static str> {
         let mut encrypted_configuration: HashMap<String, String> = HashMap::new();
 
         let new_encrypter = Encryption { config: new_config };

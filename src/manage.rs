@@ -1,7 +1,7 @@
 use crate::{Config, Encryption};
 use std::env;
-use structopt::StructOpt;
 use std::path::PathBuf;
+use structopt::StructOpt;
 
 enum Mode {
     Create,
@@ -28,8 +28,8 @@ pub fn manage(cmd: &Manage) -> Result<(), &'static str> {
             .is_empty()
     {
         return Err(
-			"You must define your $EDITOR environment variable to edit a Scoob configuration file.",
-		);
+            "You must define your $EDITOR environment variable to edit a Scoob configuration file.",
+        );
     }
 
     if cmd.create && cmd.edit {
