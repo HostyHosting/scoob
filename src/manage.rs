@@ -1,5 +1,4 @@
 use crate::{Config, Encryption};
-use colored::*;
 use std::env;
 use structopt::StructOpt;
 use std::path::PathBuf;
