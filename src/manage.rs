@@ -1,29 +1,39 @@
-use crate::{Config, ConfigFile, Encryption, Modify};
-use colored::*;
+use crate::{Config, Encryption};
 use std::env;
+use std::path::PathBuf;
+use structopt::StructOpt;
 
 enum Mode {
     Create,
     Edit,
 }
 
-pub fn modify(cmd: &Modify) -> Result<(), &'static str> {
+#[derive(Debug, StructOpt)]
+pub struct Manage {
+    /// Enforce editing of the configuration file. Scoob will error if the file does not exist
+    #[structopt(short, long)]
+    edit: bool,
+    /// Enforce creation of the configuration file. Scoob will error if the file already exists
+    #[structopt(short, long)]
+    create: bool,
+    /// Path to the scoob configuration file
+    #[structopt(parse(from_os_str))]
+    file: PathBuf,
+}
+
+pub fn manage(cmd: &Manage) -> Result<(), &'static str> {
     if env::var("EDITOR").is_err()
         || env::var("EDITOR")
             .unwrap_or_else(|_| "".to_string())
             .is_empty()
     {
         return Err(
-			"You must define your $EDITOR environment variable to modify a Scoob configuration file.",
-		);
+            "You must define your $EDITOR environment variable to edit a Scoob configuration file.",
+        );
     }
 
     if cmd.create && cmd.edit {
         return Err("Both '--edit' and '--create' flags cannot be provided");
-    }
-
-    if !cmd.create && !cmd.edit {
-        println!("{}", "Neither create nor edit mode was provided. Scoob will attempt to automatically determine the correct mode.".yellow());
     }
 
     if cmd.create && Config::exists(&cmd.file) {
@@ -55,7 +65,7 @@ pub fn modify(cmd: &Modify) -> Result<(), &'static str> {
         edit::Builder::new().suffix(".yml"),
     );
 
-    let new_config: ConfigFile = serde_yaml::from_str(&contents.unwrap()).unwrap();
+    let new_config: Config = serde_yaml::from_str(&contents.unwrap()).unwrap();
 
     let encrypted_config = encryption.encrypt_configuration(&new_config)?;
 

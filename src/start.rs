@@ -1,7 +1,25 @@
-use crate::{Config, Encryption, Start, SubCommand};
+use crate::{Config, Encryption};
 #[cfg(unix)]
 use std::os::unix::process::CommandExt;
+use std::path::PathBuf;
 use std::process::Command;
+use structopt::StructOpt;
+
+#[derive(Debug, PartialEq, StructOpt)]
+pub enum SubCommand {
+    #[structopt(external_subcommand)]
+    Other(Vec<String>),
+}
+
+#[derive(Debug, StructOpt)]
+pub struct Start {
+    /// Path to the scoob configuration file
+    #[structopt(parse(from_os_str))]
+    file: PathBuf,
+    /// The sub-command that you wish to run
+    #[structopt(subcommand)]
+    sub_command: SubCommand,
+}
 
 pub fn start(cmd: &Start) -> Result<i32, &'static str> {
     if !Config::exists(&cmd.file) {
