@@ -1,6 +1,5 @@
-use data_encoding::BASE64;
+use crate::Encryption;
 use serde::{Deserialize, Serialize};
-use sodiumoxide::crypto::box_::gen_keypair;
 use std::collections::HashMap;
 use std::path::Path;
 
@@ -49,7 +48,7 @@ impl Config {
     }
 
     pub fn default() -> Config {
-        let (public_key, secret_key) = gen_keypair();
+        let (public_key, secret_key) = Encryption::gen_keypair();
 
         let mut default_config: HashMap<String, String> = HashMap::new();
         let mut default_keys = HashMap::new();
@@ -62,8 +61,8 @@ impl Config {
         default_keys.insert(
             "*".to_string(),
             EncryptionKey {
-                public_key: BASE64.encode((public_key).0.as_ref()),
-                secret_key: BASE64.encode((secret_key).0.as_ref()),
+                public_key,
+                secret_key,
             },
         );
 

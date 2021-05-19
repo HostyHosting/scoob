@@ -34,7 +34,7 @@ fn main() {
     let result = match &cli {
         Opt::Manage(c) => manage(&c),
         Opt::Start(c) => {
-            let start_result = start(&c);
+            let start_result = start(&c, false);
 
             match start_result {
                 Ok(status) => std::process::exit(status),

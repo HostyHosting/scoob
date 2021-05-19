@@ -22,6 +22,14 @@ pub struct Encryption<'a> {
 }
 
 impl Encryption<'_> {
+    pub fn gen_keypair() -> (String, String) {
+        let (public_key, secret_key) = gen_keypair();
+        (
+            BASE64.encode((public_key).0.as_ref()),
+            BASE64.encode((secret_key).0.as_ref()),
+        )
+    }
+
     pub fn encrypt_configuration(&self, new_config: &Config) -> Result<Config, &'static str> {
         let mut encrypted_configuration: HashMap<String, String> = HashMap::new();
 
@@ -130,5 +138,71 @@ impl Encryption<'_> {
         pubkey_bytes[..PUBLICKEYBYTES].clone_from_slice(&pubkey_decoded[..PUBLICKEYBYTES]);
 
         Ok(PublicKey(pubkey_bytes))
+    }
+}
+
+// NOTE: Tests here have to disable exec, otherwise it would replace the test process itself.
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::env;
+
+    #[test]
+    fn test_encrypt_configuration() -> Result<(), &'static str> {
+        let original_config = Config::default();
+        let mut new_config = original_config.clone();
+        let enc = Encryption {
+            config: &original_config,
+        };
+
+        let new_value = "this is a new value for the new key";
+
+        new_config
+            .configuration
+            .insert("NEW_KEY".to_string(), new_value.to_string());
+
+        let encrypted_config = enc.encrypt_configuration(&new_config)?;
+
+        let encrypted_key = encrypted_config.configuration.get(&"NEW_KEY".to_string());
+        assert!(encrypted_key.is_some());
+        assert_ne!(encrypted_key.unwrap(), new_value);
+
+        assert_eq!(
+            Encryption {
+                config: &encrypted_config
+            }
+            .decrypt("NEW_KEY", encrypted_key.unwrap())
+            .unwrap(),
+            new_value
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_encrypt_decrypt() -> Result<(), &'static str> {
+        let mut path = env::current_dir().unwrap();
+        path.push("test");
+        path.push("secrets.yml");
+        let config = Config::get(&path);
+        let enc = Encryption { config: &config };
+        let raw_value = "string to encrypt";
+        let encrypted = enc.encrypt("test", raw_value)?;
+        let decrypted = enc.decrypt("test", &encrypted)?;
+        assert_eq!(decrypted, raw_value);
+        Ok(())
+    }
+
+    #[test]
+    fn test_env_key() {
+        // TODO: Write test for env variable keys.
+    }
+
+    #[test]
+    fn test_missing_keys() {
+        let mut config = Config::default();
+        config.keys.remove("*").unwrap();
+        let enc = Encryption { config: &config };
+        assert!(enc.encrypt("key", "value").is_err());
     }
 }
