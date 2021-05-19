@@ -1,5 +1,4 @@
-use crate::ConfigFile;
-use crate::EncryptionKey;
+use crate::{EncryptionKey, Config};
 use data_encoding::BASE64;
 use sodiumoxide::crypto::box_::*;
 use sodiumoxide::crypto::sealedbox;
@@ -19,14 +18,14 @@ fn resolve_env_key(key: &str) -> String {
 }
 
 pub struct Encryption<'a> {
-    pub config: &'a ConfigFile,
+    pub config: &'a Config,
 }
 
 impl Encryption<'_> {
     pub fn encrypt_configuration(
         &self,
-        new_config: &ConfigFile,
-    ) -> Result<ConfigFile, &'static str> {
+        new_config: &Config,
+    ) -> Result<Config, &'static str> {
         let mut encrypted_configuration: HashMap<String, String> = HashMap::new();
 
         let new_encrypter = Encryption { config: new_config };
@@ -53,7 +52,7 @@ impl Encryption<'_> {
             };
         }
 
-        Ok(ConfigFile {
+        Ok(Config {
             configuration: encrypted_configuration,
             keys: new_config.keys.clone(),
         })

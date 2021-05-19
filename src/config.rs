@@ -13,35 +13,31 @@ pub struct EncryptionKey {
 }
 
 #[derive(Default, Serialize, Deserialize, Clone, Debug)]
-pub struct ConfigFile {
+pub struct Config {
     pub configuration: HashMap<String, String>,
     pub keys: HashMap<String, EncryptionKey>,
 }
 
-impl ConfigFile {
-    pub fn with_placeholders(&self) -> ConfigFile {
+impl Config {
+    pub fn with_placeholders(&self) -> Config {
         let mut placeholder_configuration: HashMap<String, String> = HashMap::new();
 
         for key in self.configuration.keys() {
             placeholder_configuration.insert(key.to_string(), "<encrypted>".to_string());
         }
 
-        ConfigFile {
+        Config {
             configuration: placeholder_configuration,
             keys: self.keys.clone(),
         }
     }
-}
 
-pub struct Config {}
-
-impl Config {
     pub fn exists(path: &Path) -> bool {
         let result = std::fs::read_to_string(path);
         result.is_ok()
     }
 
-    pub fn get(path: &Path) -> ConfigFile {
+    pub fn get(path: &Path) -> Config {
         let result = std::fs::read_to_string(path);
         match result {
             Ok(content) => {
@@ -52,7 +48,7 @@ impl Config {
         }
     }
 
-    pub fn default() -> ConfigFile {
+    pub fn default() -> Config {
         let (public_key, secret_key) = gen_keypair();
 
         let mut default_config: HashMap<String, String> = HashMap::new();
@@ -71,7 +67,7 @@ impl Config {
             },
         );
 
-        ConfigFile {
+        Config {
             configuration: default_config,
             keys: default_keys,
         }
