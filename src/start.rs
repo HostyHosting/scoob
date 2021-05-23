@@ -21,7 +21,7 @@ pub struct Start {
     sub_command: SubCommand,
 }
 
-pub fn start(cmd: &Start) -> Result<i32, &'static str> {
+pub fn start(cmd: &Start, disable_exec: bool) -> Result<i32, &'static str> {
     if !Config::exists(&cmd.file) {
         return Err("The provided configuration file does not exist");
     }
@@ -50,7 +50,7 @@ pub fn start(cmd: &Start) -> Result<i32, &'static str> {
         command.arg(arg);
     }
 
-    if cfg!(unix) {
+    if cfg!(unix) && !disable_exec {
         #[cfg(unix)]
         command.exec();
         Ok(0)
@@ -61,5 +61,61 @@ pub fn start(cmd: &Start) -> Result<i32, &'static str> {
         };
 
         Ok(status.code().unwrap_or(0))
+    }
+}
+
+// NOTE: Tests here have to disable exec, otherwise it would replace the test process itself.
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::env;
+
+    fn get_secrets_path() -> PathBuf {
+        let mut path = env::current_dir().unwrap();
+        path.push("test");
+        path.push("secrets.yml");
+        path
+    }
+
+    #[test]
+    fn test_start_no_command() {
+        assert!(start(
+            &Start {
+                file: get_secrets_path(),
+                sub_command: SubCommand::Other(vec![])
+            },
+            true
+        )
+        .is_err());
+    }
+
+    #[test]
+    fn test_start_invalid_command() {
+        assert!(start(
+            &Start {
+                file: get_secrets_path(),
+                sub_command: SubCommand::Other(vec!["command_does_not_exist".to_string()])
+            },
+            true
+        )
+        .is_err());
+    }
+
+    #[test]
+    fn test_start_print() {
+        assert_eq!(
+            start(
+                &Start {
+                    file: get_secrets_path(),
+                    sub_command: SubCommand::Other(vec![
+                        "sh".to_string(),
+                        "./test/compare.sh".to_string()
+                    ])
+                },
+                true
+            )
+            .unwrap(),
+            0
+        );
     }
 }
