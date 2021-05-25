@@ -6,8 +6,6 @@ version = "0.2.4-alpha.0"
 description = "A secrets management CLI"
 repository = "https://github.com/hostyhosting/scoob/"
 license = "MIT"
-# TODO: Enable publishing
-publish = false
 
 [dependencies]
 data-encoding = "2.3.2"
