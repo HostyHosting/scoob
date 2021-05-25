@@ -1,5 +1,6 @@
 use crate::{Config, EncryptionKey};
 use data_encoding::BASE64;
+use data_encoding::HEXUPPER_PERMISSIVE;
 use sodiumoxide::crypto::box_::*;
 use sodiumoxide::crypto::sealedbox;
 use std::collections::HashMap;
@@ -112,9 +113,16 @@ impl Encryption<'_> {
 
     fn get_sec_key(&self, key: &str) -> Result<SecretKey, &'static str> {
         let sec_key = self.resolve_keys(key)?.secret_key;
+        let seckey_decoded: Vec<u8>;
 
-        // sodiumoxide needs fixed-length arrays, not slices
-        let seckey_decoded = BASE64.decode(sec_key.as_bytes()).unwrap_or_default();
+        if sec_key.as_bytes().len() == 64 {
+            seckey_decoded = HEXUPPER_PERMISSIVE
+                .decode(sec_key.as_bytes())
+                .unwrap_or_default();
+        } else {
+            seckey_decoded = BASE64.decode(sec_key.as_bytes()).unwrap_or_default();
+        }
+
         if seckey_decoded.len() != SECRETKEYBYTES {
             return Err("The secret key did not match the expected format.");
         }
@@ -127,9 +135,16 @@ impl Encryption<'_> {
 
     fn get_pub_key(&self, key: &str) -> Result<PublicKey, &'static str> {
         let pub_key = self.resolve_keys(key)?.public_key;
+        let pubkey_decoded: Vec<u8>;
 
-        // sodiumoxide needs fixed-length arrays, not slices
-        let pubkey_decoded = BASE64.decode(pub_key.as_bytes()).unwrap_or_default();
+        if pub_key.as_bytes().len() == 64 {
+            pubkey_decoded = HEXUPPER_PERMISSIVE
+                .decode(pub_key.as_bytes())
+                .unwrap_or_default();
+        } else {
+            pubkey_decoded = BASE64.decode(pub_key.as_bytes()).unwrap_or_default();
+        }
+
         if pubkey_decoded.len() != PUBLICKEYBYTES {
             return Err("The public key did not match the expected format.");
         }
