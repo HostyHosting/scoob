@@ -64,6 +64,27 @@ jobs:
         with:
           files: |
             target/${{ matrix.target }}/release/scoob-${{ matrix.target }}.zip
+  docker:
+    needs: release
+    name: Create Docker Image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: emilydbv
+          password: ${{ secrets.DOCKERHUB_SECRET }}
+      - name: Set env
+        run: echo "VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+      - name: Push to Docker Hub
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: |
+            hostypost/scoob:latest
+            hostypost/scoob:${{ env.VERSION }}
 
   homebrew:
     needs: release
