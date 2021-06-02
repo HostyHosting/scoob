@@ -1,21 +1,49 @@
 use crate::{Config, EncryptionKey};
 use data_encoding::BASE64;
 use data_encoding::HEXUPPER_PERMISSIVE;
+use rusoto_secretsmanager::GetSecretValueRequest;
+use rusoto_secretsmanager::SecretsManager;
+use rusoto_secretsmanager::SecretsManagerClient;
 use sodiumoxide::crypto::box_::*;
 use sodiumoxide::crypto::sealedbox;
 use std::collections::HashMap;
 use std::env;
 use std::str;
 
-fn resolve_env_key(key: &str) -> String {
-    return if key.starts_with('$') {
-        // Remove the $ from the environment variable:
-        let mut env_key = key.chars();
-        env_key.next();
-        env::var(env_key.as_str()).unwrap_or_else(|_| "".to_string())
-    } else {
-        key.to_string()
-    };
+fn resolve_key(key: &str) -> String {
+    if key.contains('$') {
+        let mut parts = key.splitn(2, '$');
+        let key_type = parts.next();
+        let key_data = parts.next();
+
+        if key_type == Some("env") || key_type == None {
+            let value = key_data.and_then(|k| env::var(k).ok());
+            return value.unwrap_or_else(|| "".into());
+        } else if key_type == Some("awsSecretsManager") {
+            if key_data == None {
+                return "".into();
+            }
+
+            let client = SecretsManagerClient::new(rusoto_core::Region::UsEast1);
+            let request = GetSecretValueRequest {
+                secret_id: key_data.unwrap().into(),
+                ..Default::default()
+            };
+
+            let runtime = tokio::runtime::Runtime::new().unwrap();
+
+            let result = runtime.block_on(client.get_secret_value(request));
+
+            if let Ok(response) = result {
+                let secret = response.secret_string.unwrap_or_else(|| "".into());
+                return secret;
+            }
+
+            return "".into();
+        }
+    }
+
+    key.to_string()
 }
 
 pub struct Encryption<'a> {
@@ -102,8 +130,8 @@ impl Encryption<'_> {
             None => return Err("Missing encryption keys."),
         };
 
-        let public_key = resolve_env_key(&keys.public_key);
-        let secret_key = resolve_env_key(&keys.secret_key);
+        let public_key = resolve_key(&keys.public_key);
+        let secret_key = resolve_key(&keys.secret_key);
 
         Ok(EncryptionKey {
             public_key,
