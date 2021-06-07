@@ -30,6 +30,12 @@ iwr https://scoob-rs.netlify.app/install.ps1 -useb | iex
 cargo install scoob --locked
 ```
 
+**Docker**
+
+```
+docker run -it --init hostypost/scoob:latest scoob
+```
+
 ## Getting Started
 
 First, you'll want to create a secrets file:
