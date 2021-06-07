@@ -1,4 +1,5 @@
-use crate::{Config, Encryption};
+use crate::config::Config;
+use crate::encryption::Encryption;
 #[cfg(unix)]
 use std::os::unix::process::CommandExt;
 use std::path::PathBuf;
@@ -21,7 +22,7 @@ pub struct Start {
     sub_command: SubCommand,
 }
 
-pub fn start(cmd: &Start, disable_exec: bool) -> Result<i32, &'static str> {
+pub fn start(cmd: &Start) -> Result<i32, &'static str> {
     if !Config::exists(&cmd.file) {
         return Err("The provided configuration file does not exist");
     }
@@ -50,7 +51,8 @@ pub fn start(cmd: &Start, disable_exec: bool) -> Result<i32, &'static str> {
         command.arg(arg);
     }
 
-    if cfg!(unix) && !disable_exec {
+    // Only attempt to exec on unix, and when we're not running tests
+    if cfg!(unix) && !cfg!(test) {
         #[cfg(unix)]
         command.exec();
         Ok(0)
@@ -64,7 +66,6 @@ pub fn start(cmd: &Start, disable_exec: bool) -> Result<i32, &'static str> {
     }
 }
 
-// NOTE: Tests here have to disable exec, otherwise it would replace the test process itself.
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -79,41 +80,32 @@ mod tests {
 
     #[test]
     fn test_start_no_command() {
-        assert!(start(
-            &Start {
-                file: get_secrets_path(),
-                sub_command: SubCommand::Other(vec![])
-            },
-            true
-        )
+        assert!(start(&Start {
+            file: get_secrets_path(),
+            sub_command: SubCommand::Other(vec![])
+        })
         .is_err());
     }
 
     #[test]
     fn test_start_invalid_command() {
-        assert!(start(
-            &Start {
-                file: get_secrets_path(),
-                sub_command: SubCommand::Other(vec!["command_does_not_exist".to_string()])
-            },
-            true
-        )
+        assert!(start(&Start {
+            file: get_secrets_path(),
+            sub_command: SubCommand::Other(vec!["command_does_not_exist".to_string()])
+        })
         .is_err());
     }
 
     #[test]
     fn test_start_print() {
         assert_eq!(
-            start(
-                &Start {
-                    file: get_secrets_path(),
-                    sub_command: SubCommand::Other(vec![
-                        "sh".to_string(),
-                        "./test/compare.sh".to_string()
-                    ])
-                },
-                true
-            )
+            start(&Start {
+                file: get_secrets_path(),
+                sub_command: SubCommand::Other(vec![
+                    "sh".to_string(),
+                    "./test/compare.sh".to_string()
+                ])
+            })
             .unwrap(),
             0
         );

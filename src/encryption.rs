@@ -1,4 +1,4 @@
-use crate::{Config, EncryptionKey};
+use crate::config::{Config, EncryptionKey};
 use data_encoding::BASE64;
 use data_encoding::HEXUPPER_PERMISSIVE;
 use rusoto_secretsmanager::GetSecretValueRequest;
