@@ -1,4 +1,5 @@
-use crate::{Config, Encryption};
+use crate::config::Config;
+use crate::encryption::Encryption;
 use std::env;
 use std::path::PathBuf;
 use structopt::StructOpt;

@@ -1,12 +1,9 @@
 mod config;
 mod encryption;
+mod generate_keys;
 mod manage;
 mod start;
 
-use crate::config::*;
-use crate::encryption::*;
-use crate::manage::*;
-use crate::start::*;
 use colored::Colorize;
 use std::alloc::System;
 use structopt::StructOpt;
@@ -18,10 +15,13 @@ static A: System = System;
 #[structopt(name = "scoob", about = "A secrets management tool.")]
 enum Opt {
     /// Manage a scoob configuration file
-    Manage(Manage),
+    Manage(crate::manage::Manage),
 
     /// Runs a command after loading scoob secrets into the environment
-    Start(Start),
+    Start(crate::start::Start),
+
+    /// Generate a keypair that can be used as encryption keys
+    GenerateKeys(crate::generate_keys::GenerateKeys),
 }
 
 fn main() {
@@ -32,9 +32,10 @@ fn main() {
     let cli = Opt::from_args();
 
     let result = match &cli {
-        Opt::Manage(c) => manage(&c),
+        Opt::GenerateKeys(c) => crate::generate_keys::generate_keys(&c),
+        Opt::Manage(c) => crate::manage::manage(&c),
         Opt::Start(c) => {
-            let start_result = start(&c, false);
+            let start_result = crate::start::start(&c);
 
             match start_result {
                 Ok(status) => std::process::exit(status),
