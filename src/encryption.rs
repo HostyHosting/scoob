@@ -16,7 +16,7 @@ fn resolve_key(key: &str) -> String {
         let key_type = parts.next();
         let key_data = parts.next();
 
-        if key_type == Some("env") || key_type == None {
+        if key_type == Some("env") || key_type == Some("") || key_type == None {
             let value = key_data.and_then(|k| env::var(k).ok());
             return value.unwrap_or_else(|| "".into());
         } else if key_type == Some("awsSecretsManager") {
