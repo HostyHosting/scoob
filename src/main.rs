@@ -4,8 +4,8 @@ mod generate_keys;
 mod manage;
 mod start;
 
-use dotenv;
 use colored::Colorize;
+use dotenv;
 use std::alloc::System;
 use structopt::StructOpt;
 
