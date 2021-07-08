@@ -5,7 +5,6 @@ mod manage;
 mod start;
 
 use colored::Colorize;
-use dotenv;
 use std::alloc::System;
 use structopt::StructOpt;
 
