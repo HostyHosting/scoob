@@ -28,8 +28,19 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v2
 
-      - name: Setup Rust
+      - name: Setup Rust (ubuntu)
         uses: actions-rs/toolchain@v1
+        if: |
+          startsWith(matrix.os, 'ubuntu')
+        with:
+          toolchain: stable
+          target: aarch64-unknown-linux-gnu
+
+      - name: Setup Rust (windows / macos)
+        uses: actions-rs/toolchain@v1
+        if: |
+          startsWith(matrix.os, 'windows') ||
+          startsWith(matrix.os, 'macOS')
         with:
           toolchain: stable
 
