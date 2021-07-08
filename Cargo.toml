@@ -20,6 +20,7 @@ rusoto_secretsmanager = "0.46.0"
 futures = "0.3.15"
 tokio = "1.6.1"
 dotenv = "0.15.0"
+# Explicitly depend on openssl to fix cross compilation.
 openssl = { version = '0.10', features = ["vendored"] }
 
 [profile.release]
