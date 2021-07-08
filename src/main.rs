@@ -29,6 +29,9 @@ fn main() {
         return println!("{}", String::from("Was not able to initialize Sodium. Verify your installation of Scoob and try again.").red().bold());
     }
 
+    // Load the .env file into the current environment:
+    dotenv::dotenv().ok();
+
     let cli = Opt::from_args();
 
     let result = match &cli {
