@@ -4,6 +4,7 @@ mod generate_keys;
 mod manage;
 mod start;
 
+use dotenv;
 use colored::Colorize;
 use std::alloc::System;
 use structopt::StructOpt;
@@ -28,6 +29,9 @@ fn main() {
     if sodiumoxide::init().is_err() {
         return println!("{}", String::from("Was not able to initialize Sodium. Verify your installation of Scoob and try again.").red().bold());
     }
+
+    // Load the .env file into the current environment:
+    dotenv::dotenv().ok();
 
     let cli = Opt::from_args();
 
