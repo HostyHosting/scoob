@@ -1,0 +1,26 @@
+name: Test
+
+on: [push]
+
+jobs:
+  build_and_test:
+    name: Rust project
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+
+      - name: Setup Environment (ubuntu)
+        run: sudo apt update && sudo apt install build-essential
+
+      - name: Setup Rust (ubuntu)
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: aarch64-unknown-linux-gnu
+
+      - name: Build Project
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --locked --release --target=aarch64-unknown-linux-gnu

@@ -28,6 +28,9 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v2
 
+      - name: Setup Environment (ubuntu)
+        run: sudo apt update && sudo apt install build-essential
+
       - name: Setup Rust (ubuntu)
         uses: actions-rs/toolchain@v1
         if: |
