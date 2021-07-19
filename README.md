@@ -33,7 +33,7 @@ cargo install scoob --locked
 **Docker**
 
 ```
-docker run -it --init hostypost/scoob:latest scoob
+docker run -it --init hostypost/scoob:latest
 ```
 
 ## Getting Started
