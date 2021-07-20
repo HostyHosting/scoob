@@ -1,5 +1,6 @@
 mod config;
 mod encryption;
+mod file;
 mod generate_keys;
 mod manage;
 mod start;
@@ -20,6 +21,9 @@ enum Opt {
     /// Runs a command after loading scoob secrets into the environment
     Start(crate::start::Start),
 
+    /// Utilities for encrypting files
+    File(crate::file::File),
+
     /// Generate a keypair that can be used as encryption keys
     GenerateKeys(crate::generate_keys::GenerateKeys),
 }
@@ -37,6 +41,7 @@ fn main() {
     let result = match &cli {
         Opt::GenerateKeys(c) => crate::generate_keys::generate_keys(&c),
         Opt::Manage(c) => crate::manage::manage(&c),
+        Opt::File(c) => crate::file::file(&c),
         Opt::Start(c) => {
             let start_result = crate::start::start(&c);
 
