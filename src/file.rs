@@ -16,7 +16,7 @@ pub struct File {
 #[derive(Debug, StructOpt)]
 struct EncryptOptions {
     /// The encryption key from the config file that will be used
-    #[structopt(short, long)]
+    #[structopt(short, long, default_value = "*")]
     key: String,
 
     /// The raw, unencrypted file
@@ -31,7 +31,7 @@ struct EncryptOptions {
 #[derive(Debug, StructOpt)]
 struct DecryptOptions {
     /// The encryption key from the config file that will be used
-    #[structopt(short, long)]
+    #[structopt(short, long, default_value = "*")]
     key: String,
 
     /// The encrypted file
