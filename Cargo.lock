@@ -959,7 +959,7 @@ dependencies = [
 
 [[package]]
 name = "scoob"
-version = "0.6.0"
+version = "0.6.1-alpha.0"
 dependencies = [
  "colored",
  "data-encoding",
