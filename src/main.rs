@@ -39,11 +39,11 @@ fn main() {
     let cli = Opt::from_args();
 
     let result = match &cli {
-        Opt::GenerateKeys(c) => crate::generate_keys::generate_keys(&c),
-        Opt::Manage(c) => crate::manage::manage(&c),
-        Opt::File(c) => crate::file::file(&c),
+        Opt::GenerateKeys(c) => crate::generate_keys::generate_keys(c),
+        Opt::Manage(c) => crate::manage::manage(c),
+        Opt::File(c) => crate::file::file(c),
         Opt::Start(c) => {
-            let start_result = crate::start::start(&c);
+            let start_result = crate::start::start(c);
 
             match start_result {
                 Ok(status) => std::process::exit(status),

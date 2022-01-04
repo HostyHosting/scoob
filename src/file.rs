@@ -50,7 +50,7 @@ enum FileMode {
 }
 
 fn encrypt_file(config: &Config, options: &EncryptOptions) -> Result<(), &'static str> {
-    let encryption = Encryption { config: &config };
+    let encryption = Encryption { config };
     let raw_contents = match std::fs::read_to_string(&options.from) {
         Ok(c) => c,
         Err(_) => return Err("Unable to read file"),
@@ -62,7 +62,7 @@ fn encrypt_file(config: &Config, options: &EncryptOptions) -> Result<(), &'stati
 }
 
 fn decrypt_file(config: &Config, options: &DecryptOptions) -> Result<(), &'static str> {
-    let encryption = Encryption { config: &config };
+    let encryption = Encryption { config };
     let encrypted_contents = match std::fs::read_to_string(&options.from) {
         Ok(c) => c,
         Err(_) => return Err("Unable to read encrypted file"),
@@ -81,8 +81,8 @@ pub fn file(cmd: &File) -> Result<(), &'static str> {
     let config = Config::get(&cmd.config);
 
     match &cmd.cmd {
-        FileMode::Encrypt(options) => encrypt_file(&config, &options),
-        FileMode::Decrypt(options) => decrypt_file(&config, &options),
+        FileMode::Encrypt(options) => encrypt_file(&config, options),
+        FileMode::Decrypt(options) => decrypt_file(&config, options),
     }
 }
 
