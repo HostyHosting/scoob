@@ -13,9 +13,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # TODO: Wait for new Sodiumoxide release https://github.com/sodiumoxide/sodiumoxide/issues/457.
-          # - os: macos-latest
-          #   target: aarch64-apple-darwin
+          - os: macos-latest
+            target: aarch64-apple-darwin
           - os: macos-latest
             target: x86_64-apple-darwin
           - os: windows-latest
